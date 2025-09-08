@@ -16,7 +16,7 @@ export default function SearchPage() {
     }
   }, [q]);
 
-  const wikiLink = `https://chatgpt.com/g/g-68bedab30d248191887be109dcf7aea6-wiki-analizator?q=${encodeURIComponent(
+  const gptLink = `https://chatgpt.com/g/g-68bedab30d248191887be109dcf7aea6-wiki-analizator?q=${encodeURIComponent(
     q || ""
   )}`;
 
@@ -30,7 +30,7 @@ export default function SearchPage() {
       {typed === q && q && (
         <div className="mt-6 flex flex-col gap-3">
           <a
-            href={wikiLink}
+            href={gptLink}
             target="_blank"
             rel="noopener noreferrer"
             className="bg-blue-600 text-white px-6 py-2 rounded-xl shadow text-center"
