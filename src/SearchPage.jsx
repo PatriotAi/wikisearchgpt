@@ -15,7 +15,7 @@ export default function SearchPage() {
         i++;
         if (i >= q.length) {
           clearInterval(interval);
-          setFinished(true);
+          setTimeout(() => setFinished(true), 600);
         }
       }, 120);
     }
@@ -25,33 +25,37 @@ export default function SearchPage() {
     q || ""
   )}`;
 
+  const copyPageLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    const toast = document.createElement("div");
+    toast.innerText = "Посилання скопійовано!";
+    toast.className = "toast";
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2000);
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-r from-purple-200 to-blue-300 p-6">
-      <div className="border px-4 py-2 rounded-xl shadow w-96 bg-white">
-        <input className="w-full outline-none" value={typed} readOnly />
+    <div className="search-page">
+      <div className="query-box">
+        <input className="query-input" value={typed} readOnly />
       </div>
 
       {!finished && <Loader />}
 
       {finished && q && (
-        <div className="mt-6 flex flex-col gap-3 items-center">
+        <div className="result-box">
           <a
             href={gptLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-blue-600 text-white px-6 py-2 rounded-xl shadow text-center hover:bg-blue-700"
+            className="open-btn"
           >
             Відкрити в Wiki-Аналізаторі
           </a>
-          <button
-            onClick={() => navigator.clipboard.writeText(window.location.href)}
-            className="bg-gray-200 px-6 py-2 rounded-xl shadow"
-          >
+          <button className="copy-btn" onClick={copyPageLink}>
             Скопіювати посилання
           </button>
-          <p className="text-gray-600 mt-4 italic">
-            Бачиш, не так вже й складно 😉
-          </p>
+          <p className="final-text">Бачиш, не так вже й складно 😉</p>
         </div>
       )}
     </div>
