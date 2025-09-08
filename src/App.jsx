@@ -12,7 +12,7 @@ export default function App() {
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-100 p-6">
-      <h1 className="text-3xl font-bold mb-6">wikisearchgpt</h1>
+      <h1 className="text-3xl font-bold mb-6">WikiSearchGPT</h1>
       <input
         className="border rounded-xl px-4 py-2 w-96"
         placeholder="Введіть запит..."
