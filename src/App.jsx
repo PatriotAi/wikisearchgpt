@@ -1,17 +1,23 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 export default function App() {
   const [query, setQuery] = useState("");
   const [link, setLink] = useState("");
 
   const generateLink = () => {
+    if (!query.trim()) return;
     const encoded = encodeURIComponent(query);
     const url = `${window.location.origin}/search?q=${encoded}`;
     setLink(url);
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") generateLink();
+  };
+
   const copyLink = () => {
-    navigator.clipboard.writeText(link);
+    if (!link) return;
+    navigator.clipboard.writeText(link).catch(() => {});
     const toast = document.createElement("div");
     toast.innerText = "Посилання скопійовано!";
     toast.className = "toast";
@@ -25,11 +31,14 @@ export default function App() {
       <p className="subtitle">Замість того, щоб питати — спробуй сам 😉</p>
 
       <div className="input-box">
+        <label htmlFor="search-input" className="sr-only">Пошуковий запит</label>
         <input
+          id="search-input"
           className="search-input"
           placeholder="Введіть запит..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={handleKeyDown}
         />
         <button className="search-btn" onClick={generateLink}>
           Створити посилання
