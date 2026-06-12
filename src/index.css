@@ -66,6 +66,10 @@ body {
 .search-btn:hover {
   background-color: #1e40af;
 }
+.search-btn:disabled {
+  background-color: #93c5fd;
+  cursor: not-allowed;
+}
 
 .link-box {
   margin-top: 20px;

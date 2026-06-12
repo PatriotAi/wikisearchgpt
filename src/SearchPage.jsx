@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Loader from "./Loader";
+import { copyWithToast } from "./toast";
 
 const GPT_LINK_BASE =
+  import.meta.env.VITE_GPT_URL ||
   "https://chat.openai.com/g/g-68bedab30d248191887be109dcf7aea6-wiki-analizator";
+
+// Cap the total typing animation so very long queries don't animate for minutes
+const MAX_ANIMATION_MS = 6000;
+const CHAR_INTERVAL_MS = 120;
 
 export default function SearchPage() {
   const [searchParams] = useSearchParams();
@@ -14,26 +20,26 @@ export default function SearchPage() {
   useEffect(() => {
     if (!q) return;
     let i = 0;
+    let timeout;
+    const delay = Math.min(CHAR_INTERVAL_MS, MAX_ANIMATION_MS / q.length);
     const interval = setInterval(() => {
       setTyped(q.slice(0, i + 1));
       i++;
       if (i >= q.length) {
         clearInterval(interval);
-        setTimeout(() => setFinished(true), 600);
+        timeout = setTimeout(() => setFinished(true), 600);
       }
-    }, 120);
-    return () => clearInterval(interval);
+    }, delay);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
   }, [q]);
 
   const gptLink = `${GPT_LINK_BASE}?q=${encodeURIComponent(q || "")}`;
 
   const copyPageLink = () => {
-    navigator.clipboard.writeText(window.location.href).catch(() => {});
-    const toast = document.createElement("div");
-    toast.innerText = "Посилання скопійовано!";
-    toast.className = "toast";
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 2000);
+    copyWithToast(window.location.href, "Посилання скопійовано!");
   };
 
   return (
