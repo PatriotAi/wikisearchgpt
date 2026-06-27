@@ -1,43 +1,52 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import Loader from "./Loader";
+import { copyWithToast } from "./toast";
+
+const GPT_LINK_BASE =
+  import.meta.env.VITE_GPT_URL ||
+  "https://chat.openai.com/g/g-68bedab30d248191887be109dcf7aea6-wiki-analizator";
+
+// Cap the total typing animation so very long queries don't animate for minutes
+const MAX_ANIMATION_MS = 6000;
+const CHAR_INTERVAL_MS = 120;
 
 export default function SearchPage() {
+  const [searchParams] = useSearchParams();
+  const q = searchParams.get("q");
   const [typed, setTyped] = useState("");
   const [finished, setFinished] = useState(false);
-  const params = new URLSearchParams(window.location.search);
-  const q = params.get("q");
 
   useEffect(() => {
-    if (q) {
-      let i = 0;
-      const interval = setInterval(() => {
-        setTyped(q.slice(0, i + 1));
-        i++;
-        if (i >= q.length) {
-          clearInterval(interval);
-          setTimeout(() => setFinished(true), 600);
-        }
-      }, 120);
-    }
+    if (!q) return;
+    let i = 0;
+    let timeout;
+    const delay = Math.min(CHAR_INTERVAL_MS, MAX_ANIMATION_MS / q.length);
+    const interval = setInterval(() => {
+      setTyped(q.slice(0, i + 1));
+      i++;
+      if (i >= q.length) {
+        clearInterval(interval);
+        timeout = setTimeout(() => setFinished(true), 600);
+      }
+    }, delay);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
   }, [q]);
 
-  const gptLink = `https://chat.openai.com/g/g-68bedab30d248191887be109dcf7aea6-wiki-analizator?q=${encodeURIComponent(
-    q || ""
-  )}`;
+  const gptLink = `${GPT_LINK_BASE}?q=${encodeURIComponent(q || "")}`;
 
   const copyPageLink = () => {
-    navigator.clipboard.writeText(window.location.href);
-    const toast = document.createElement("div");
-    toast.innerText = "Посилання скопійовано!";
-    toast.className = "toast";
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 2000);
+    copyWithToast(window.location.href, "Посилання скопійовано!");
   };
 
   return (
     <div className="search-page">
       <div className="query-box">
-        <input className="query-input" value={typed} readOnly />
+        <label htmlFor="query-input" className="sr-only">Ваш запит</label>
+        <input id="query-input" className="query-input" value={typed} readOnly />
       </div>
 
       {!finished && <Loader />}
